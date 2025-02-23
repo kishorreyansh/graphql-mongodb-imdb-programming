@@ -1,0 +1,70 @@
+# mutation {
+#   createMovie(title: "SALAAR", description: "A group of intergalactic criminals are forced to work together to stop...", runtime: 121, genres: ["Action", "Adventure", "Sci-Fi"], rating: 8.1, votes: 757074, revenue: 333.13, director: "James Gunn", actors: ["Prabhas", "Vin Diesel", "Bradley Cooper", "Zoe Saldana"], year: 2024) {
+#     movie {
+#       title
+#       description
+#       runtime
+#       genres
+#       rating
+#       votes
+#       revenue
+#       director
+#       actors
+#       year
+#     }
+#   }
+# }
+
+# {
+#   allMovies {
+#     title
+#     genres
+#     description
+#     director
+#     actors
+#     year
+#     runtime
+#     rating
+#     votes
+#     revenue
+#   }
+# }
+
+# {
+#   movieByTitle(title: "SALAAR") {
+#     title
+#     genres
+#     description
+#     director
+#     actors
+#     year
+#     runtime
+#     rating
+#     votes
+#     revenue
+#   }
+# }
+
+# mutation {
+#   updateMovie(
+#     title: "Guardians of the Galaxy",
+#     description: "A new updated description of the movie.",
+#     runtime: 130,
+#     genres: ["Action", "Adventure", "Sci-Fi","Comedy"],
+#     votes: 800000
+#   ) {
+#     movie {
+#       title
+#       description
+#       runtime
+#       genres
+#       votes
+#     }
+#   }
+# }
+
+mutation {
+#   deleteMovie(title: "KALKI") {
+#     success
+#   }
+# }
