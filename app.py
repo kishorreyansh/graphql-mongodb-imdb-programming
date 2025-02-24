@@ -10,12 +10,12 @@ app = Flask(__name__)
 try:
     #client = MongoClient("mongodb+srv://<your-mongodb-atlas-connection-string>")  # Use your Atlas connection string
     client = MongoClient("mongodb://localhost:27017")
-    db = client["IMDB"]  # Database name
-    collection = db["imdb"]  # Collection name
+    db = client["IMDB"]  
+    collection = db["imdb"]  
     print("Connected to the database successfully.", collection)
 except Exception as e:
     print(f"Failed to connect to the database: {e}")
-    exit(1)  # Exit if the connection fails
+    exit(1)  
 
 # GraphQL Schema
 class Movie(graphene.ObjectType):
@@ -71,7 +71,7 @@ class Query(graphene.ObjectType):
             votes=movie.get("Votes"),
             revenue=movie.get("Revenue")
         )
-# 1.Create function: insert the new movies or shows.
+# 1.Create function: insert the new movies.
 class CreateMovie(graphene.Mutation):
     class Arguments:
         title = graphene.String(required=True)
@@ -90,22 +90,22 @@ class CreateMovie(graphene.Mutation):
     def mutate(self, info, title, genres, description, director, actors, year, runtime, rating, votes, revenue):
         new_movie = {
             "Title": title,
-            "Genre": ",".join(genres),  # if your CSV uses a comma-separated string
+            "Genre": ",".join(genres),  
             "Description": description,
             "Director": director,
-            "Actors": ", ".join(actors),  # if your CSV uses a comma-separated string
+            "Actors": ", ".join(actors),  
             "Year": year,
             "Runtime": runtime,
             "Rating": rating,
             "Votes": votes,
             "Revenue": revenue
         }
-        # Insert the new movie into the MongoDB collection
+     
         collection.insert_one(new_movie)
-        # Return the created movie (you may also want to include the id)
+       
         return CreateMovie(movie=Movie(
             title=new_movie['Title'],
-            genres=new_movie['Genre'].split(","),  # convert back to list for GraphQL response if needed
+            genres=new_movie['Genre'].split(","), 
             description=new_movie['Description'],
             director=new_movie['Director'],
             actors=new_movie['Actors'].split(", ") if new_movie.get('Actors') else [],
@@ -116,19 +116,19 @@ class CreateMovie(graphene.Mutation):
             revenue=new_movie['Revenue']
         ))
 
-# 2.Update function: update the movie and show information using title, and modifies only description, runtime, genres and imdb_score attributes).
+
 class UpdateMovie(graphene.Mutation):
     class Arguments:
         title = graphene.String(required=True)
-        description = graphene.String()  # New description, if provided
-        runtime = graphene.Int()         # New runtime, if provided
-        genres = graphene.List(graphene.String)  # New genre list, if provided
-        votes = graphene.Int()           # New votes count, if provided
+        description = graphene.String()  
+        runtime = graphene.Int()         
+        genres = graphene.List(graphene.String) 
+        votes = graphene.Int()           
 
     movie = graphene.Field(Movie)
 
     def mutate(self, info, title, description=None, runtime=None, genres=None, votes=None):
-        # Prepare the changes (only update what's provided)
+        
         update_data = {}
 
         if description is not None:
@@ -136,20 +136,16 @@ class UpdateMovie(graphene.Mutation):
         if runtime is not None:
             update_data["Runtime"] = runtime
         if genres is not None:
-            # Convert the list to a comma-separated string if needed
             update_data["Genre"] = ",".join(genres)
         if votes is not None:
             update_data["Votes"] = votes
 
-        # Look for the movie card by its title and update it
         result = collection.update_one({"Title": title}, {"$set": update_data})
         if result.matched_count == 0:
             raise GraphQLError("Movie not found")
 
-        # Retrieve the updated movie card
         updated_movie = collection.find_one({"Title": title})
 
-        # Convert the updated genres string back to a list for our API response
         updated_genres = updated_movie.get("Genre", "").split(",") if updated_movie.get("Genre") else []
 
         return UpdateMovie(movie=Movie(
@@ -167,16 +163,12 @@ class UpdateMovie(graphene.Mutation):
 
 class DeleteMovie(graphene.Mutation):
     class Arguments:
-        # Identify the movie to delete by its Title.
         title = graphene.String(required=True)
 
-    # This field indicates whether the deletion was successful.
     success = graphene.Boolean()
 
     def mutate(self, info, title):
-        # Delete the movie document where "Title" matches the given title.
         result = collection.delete_one({"Title": title})
-        # If a document was deleted, result.deleted_count will be > 0.
         return DeleteMovie(success=result.deleted_count > 0)
 
 class Mutation(graphene.ObjectType):

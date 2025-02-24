@@ -96,3 +96,13 @@ mutation {
   }
 }
 ```
+
+## Mutation Query to delete a movie
+
+```graphql
+mutation {
+  deleteMovie(title: "KALKI") {
+    success
+  }
+}
+```

@@ -10,9 +10,9 @@ app = Flask(__name__)
 try:
     client = MongoClient("mongodb+srv://my-user:vVgi4WfgzYA7CJBr@cluster0.kbovzuj.mongodb.net/")
     # Database Name
-    db = client["IMDB"]
+    db = client["db_adbms"]
     # Collection Name
-    collection = db["imdb"]
+    collection = db["netflix"]
     # Add a print statement to confirm connection
     print("Connected to the database successfully.")
 except Exception as e:
